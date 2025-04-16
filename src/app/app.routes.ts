@@ -4,11 +4,21 @@ import { MasterComponent } from './componentes/master/master.component';
 import { PainelComponent } from './componentes/painel/painel.component';
 import { ErroComponent } from './componentes/erro/erro.component';
 import { authGuard } from './auth.guard';
+import { environment } from '../environments/environment';
+let rotas: Routes = [];
 
-export const routes: Routes = [
-  {path: 'login', component: LoginComponent},
-  {path: '', component: MasterComponent, children:[
+if(environment.ambiente === 'protheus'){
+  rotas = [
+    {path: '', component: MasterComponent},
     {path: 'painel', component: PainelComponent}
-  ], canActivate: [authGuard]},
-  {path: '**', component: ErroComponent}
-];
+  ];
+}else{
+  rotas = [
+    {path: 'login', component: LoginComponent},
+    {path: '', component: MasterComponent, children:[
+      {path: 'painel', component: PainelComponent}
+    ], canActivate: [authGuard]},
+    {path: '**', component: ErroComponent}
+  ];
+}
+export const routes: Routes = rotas

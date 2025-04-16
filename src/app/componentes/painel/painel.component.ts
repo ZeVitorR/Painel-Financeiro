@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PainelService } from '../../servicos/painel.service';
 import { environment } from '../../../environments/environment';
+import { ProAppConfigService } from '@totvs/protheus-lib-core';
 
 @Component({
   selector: 'app-painel',
@@ -56,6 +57,7 @@ export class PainelComponent {
   public x: number = 0
   public historicoProduto: Array<any> = []
   public logo: string = environment.ambiente === "protheus" ? 'thcm.png' : '../../../assets/thcm.png'
+  #appConfig = inject(ProAppConfigService)
 
   @ViewChild(PoPageSlideComponent, { static: true }) pageSlide!: PoPageSlideComponent;
   @ViewChild('modalHistorico') modalHistoricoElement!: PoModalComponent
@@ -340,9 +342,11 @@ export class PainelComponent {
   }
 
   public close(){
-    // if (this.#appConfig.insideProtheus()){
-    //   this.#appConfig.callAppClose(false);
-    // }
-    alert('sair')
+    if (this.#appConfig.insideProtheus()){
+      this.#appConfig.callAppClose(false);
+    }else{
+      alert('sair')
+    }
+
   }
 }

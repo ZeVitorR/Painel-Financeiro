@@ -4,6 +4,7 @@ import { inject } from '@angular/core';
 import { LoginService } from './servicos/login.service';
 
 export const authGuard: CanActivateFn = (route, state) => {
+
   if(environment.ambiente === 'protheus'){
     return true;
   }

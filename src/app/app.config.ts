@@ -7,6 +7,7 @@ import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@a
 import { BrowserAnimationsModule, provideAnimations } from '@angular/platform-browser/animations';
 import { PoHttpRequestModule } from '@po-ui/ng-components';
 import { jwtInterceptor } from './jwtInterceptor';
+import { ProtheusLibCoreModule } from '@totvs/protheus-lib-core';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,7 +17,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideHttpClient(withInterceptorsFromDi()),
     provideAnimations(),
-    importProvidersFrom([BrowserAnimationsModule, PoHttpRequestModule]),
+    importProvidersFrom([BrowserAnimationsModule, PoHttpRequestModule, ProtheusLibCoreModule]),
     {provide: HTTP_INTERCEPTORS, useClass: jwtInterceptor, multi: true}
   ],
 
