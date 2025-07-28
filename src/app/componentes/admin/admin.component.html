@@ -1,0 +1,155 @@
+<div class="po-wrapper">
+  <po-menu
+    [p-collapsed] = "true"
+    [p-menus]="menus"
+    [p-automatic-toggle]="true"
+  >
+    <div *p-menu-header-template class="po-p-2 po-font-title sample-menu-header-text-color">
+      <p>Painel Financeiro - Admin</p>
+    </div>
+  </po-menu>
+  <po-page-default>
+    <po-widget>
+      <h1>DashBoard Admin</h1>
+      <hr/>
+      <div class="po-row">
+        <div class="po-row">
+          <h4>Filtro</h4>
+        </div>
+        <div class="po-xl-2 po-lg-2 po-sm-2">
+          <label for="selecaoFilial">Filiais</label>
+          <select id="selecaoFilial" [(ngModel)]="filialSelecionada">
+            <option value="">Todas</option>
+            <!-- <option *ngFor="let fruta of frutas" [value]="fruta">{{ fruta }}</option> -->
+          </select>
+        </div>
+        <div class="po-xl-2 po-lg-2 po-sm-2">
+          <label for="selecaoFilial">Atendentes</label>
+          <select id="selecaoFilial" [(ngModel)]="atendentesSelecionada">
+            <option value="">Todos</option>
+            <!-- <option *ngFor="let fruta of frutas" [value]="fruta">{{ fruta }}</option> -->
+          </select>
+        </div>
+        <div class="po-xl-2 po-lg-2 po-sm-2">
+          <label for="filtroData">Filtro de Data</label>
+          <select id="selecaoFilial" [(ngModel)]="filtroData">
+            <option value="ano">Ano</option>
+            <option value="mes">Mês</option>
+            <option value="periodo">Peridodo</option>
+          </select>
+        </div>
+        <div class="po-xl-4 po-lg-4 po-sm-4" *ngIf="filtroData == 'ano' || filtroData == 'mes' ">
+          <div class="po-xl-6 po-lg-6 po-sm-6" *ngIf="filtroData == 'mes' ">
+            <label for="mes">Mes</label>
+            <select id="mes" [(ngModel)]="mes">
+              <option *ngFor="let mes of meses" [value]="mes">{{ mes }}</option>
+            </select>
+          </div>
+          <div class="po-xl-6 po-lg-6 po-sm-6">
+            <label for="ano">Ano</label>
+            <select id="ano" [(ngModel)]="ano">
+              <option value="2025">2025</option>
+              <option value="2024">2024</option>
+              <!-- <option *ngFor="let fruta of frutas" [value]="fruta">{{ fruta }}</option> -->
+            </select>
+          </div>
+        </div>
+        <div class="po-xl-4 po-lg-4 po-sm-4" *ngIf="filtroData == 'periodo' ">
+
+          <po-datepicker-range
+            class="po-md-6 filtro"
+            name="datepickerRange"
+            [(ngModel)]="datepickerRange"
+          >
+          </po-datepicker-range>
+        </div>
+      </div>
+      <hr/>
+      <div class="dados">
+        <div class="po-xl-3 po-lg-3 po-sm-3 card borda-lateral">
+          <div class="po-font-title po-text-center po-pt-5"><strong>Quantidade de Atendimento</strong></div>
+          <div class="po-font-title po-text-center">{{ qtdAtendimento }}</div>
+        </div>
+        <div class="po-xl-3 po-lg-3 po-sm-3 card borda-lateral">
+          <div class="po-font-title po-text-center po-pt-5"><strong>Média de Atendimento por dia</strong></div>
+          <div class="po-font-title po-text-center">{{ mediaAtendimento}}</div>
+        </div>
+        <div class="po-xl-3 po-lg-3 po-sm-3 card">
+          <div class="po-font-title po-text-center po-pt-5"><strong>Média de Tempo de Atendimento</strong></div>
+          <div class="po-font-title po-text-center">{{ mediaTempoAtendimento }} min</div>
+        </div>
+        <form *ngIf="optionUser && optionUser.length > 0">
+            <div class="po-xl-2 po-lg-2 po-sm-2">
+              <label for="SelUser"><b>Usuário</b></label>
+              <select
+                [(ngModel)]="valorUser"
+                name="SelUser"
+                id="SelUser"
+              >
+                <option value="">Todos</option>
+                <option *ngFor="let user of optionUser" [value]="user.value">{{ user.label }}</option>
+              </select>
+            </div>
+            <div class="po-x-4 po-lg-4 po-sm-4">
+              <label ><b>Tipo de Data</b></label>
+              <div style="display: flex; gap: 1rem; align-items: center; margin: auto auto;">
+                <div>
+                  <input type="radio" name="tipoData" id="tdano" checked>
+                  <label for="tdano">Ano</label>
+                </div>
+
+                <div>
+                  <input type="radio" name="tipoData" id="tdmes">
+                  <label for="tdmes">Mês</label>
+                </div>
+
+                <div>
+                  <input type="radio" name="tipoData" id="tdperiodo">
+                  <label for="tdperiodo">Período</label>
+                </div>
+              </div>
+            </div>
+        </form>
+      </div>
+      <hr>
+      <div>
+        <div class="po-xl-5 po-lg-5 po-sm-5">
+          <div class="po-font-title po-pt-2"><strong>Atendentes</strong></div>
+          <po-chart
+            [p-series]="graficoAtendentes"
+            [p-type]="atendenteTipo"
+            [p-height]="350"
+          >
+          </po-chart>
+        </div>
+        <div class="po-xl-7 po-lg-7 po-sm-7">
+          <div class="po-font-title po-pt-2"><strong>Principais Filiais</strong></div>
+          <div class="po-font-title po-pt-2" style="text-align: justify;" style="display: flex; justify-content: space-between; align-items: center; font-size: 2rem;" *ngFor="let dados of pricipaisFiliais">
+            <span>{{dados.filial}}</span>
+            <span style="flex: 1; border-bottom: 2px dotted gray; margin: 0 10px;"></span>
+            <span>{{dados.qtd}}</span>
+          </div>
+        </div>
+      </div>
+      <hr>
+      <div>
+        <po-chart
+          class="po-xl-12 po-lg-12 po-mt-12"
+          p-title="Atendimento X Atendente"
+          [p-series]="graficoAtendimento"
+          [p-options]="optionsAtendimento"
+          [p-categories]="categoriaAtendimento"
+        >
+        </po-chart>
+        <po-chart
+          class="po-xl-12 po-lg-12 po-mt-12"
+          p-title="Atendimento X Atendente"
+          [p-series]="graficoAtendimentoFilial"
+          [p-options]="optionsAtendimentoFilial"
+          [p-categories]="categoriaAtendimentoFilial"
+        >
+        </po-chart>
+      </div>
+    </po-widget>
+  </po-page-default>
+</div>

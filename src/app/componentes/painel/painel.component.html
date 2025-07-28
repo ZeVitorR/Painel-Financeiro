@@ -1,0 +1,309 @@
+<div class="po-wrapper">
+
+  <div class="sample-container">
+    <po-loading-overlay [hidden]="isHideLoading"></po-loading-overlay>
+  </div>
+  <po-menu
+    [p-collapsed] = "true"
+    [p-menus]="menus"
+    [p-automatic-toggle]="true"
+  >
+    <div *p-menu-header-template class="po-p-2 po-font-title sample-menu-header-text-color">
+      <p>Painel Financeiro</p>
+    </div>
+  </po-menu>
+  <po-toaster
+    [p-hide]="escondeToaster"
+    [p-message]="messagem"
+    [p-show-close]="true"
+  >
+  </po-toaster>
+    <po-page-slide #pageSlide
+      p-title="Parâmetro"
+      [p-click-out]="true"
+      p-size="sm"
+
+    >
+      <po-tabs>
+        <po-tab p-label="Cliente" [p-active]="true">
+          <form>
+                <po-lookup
+                  name="filial"
+                  p-field-label="filial"
+                  p-field-value="filial"
+                  [p-filter-service]="serviceApiFil"
+                  p-label="Filial:"
+                  (p-error)="erroConsulta($event)"
+                  [(ngModel)]="filial"
+                  (p-change)="mudaFiltro()"
+                >
+                </po-lookup>
+                <po-lookup
+                  #meuLookup
+                  name="codCliente"
+                  p-field-label="codigo"
+                  p-field-value="codigo"
+                  [p-filter-service]="serviceApi"
+                  p-label="Código do Cliente:"
+                  [(ngModel)]="codigoCliente"
+                  (p-error)="erroConsulta($event)"
+                  [p-required]="true">
+                >
+                </po-lookup>
+                <po-input name="loja" p-label="Loja:" [(ngModel)]="loja" [p-required]="'true'"> </po-input>
+                <po-lookup
+                  name="produto"
+                  p-field-label="codigo"
+                  p-field-value="codigo"
+                  [p-filter-service]="serviceApiProd"
+                  [p-filter-params]="filtro"
+                  (p-error)="erroConsulta($event)"
+                  p-label="Código do Produto:"
+                  [(ngModel)]="produto"
+                >
+                </po-lookup>
+
+
+                <po-button
+                    p-label="Consultar" (p-click)="Consultas(pageSlide)"
+                ></po-button>
+          </form>
+        </po-tab>
+        <!-- <po-tab p-label="Inadimplencia" [p-active]="true">
+          <form>
+                <po-lookup
+                  name="filial"
+                  p-field-label="filial"
+                  p-field-value="filial"
+                  [p-filter-service]="serviceApiFil"
+                  p-label="Filial:"
+                  (p-error)="erroConsulta($event)"
+                  [(ngModel)]="filial"
+                  (p-change)="mudaFiltro()"
+                >
+                </po-lookup>
+
+
+                <po-button
+                    p-label="Consultar" (p-click)="Consultas(pageSlide)"
+                ></po-button>
+          </form>
+        </po-tab> -->
+      </po-tabs>
+    </po-page-slide>
+  <po-page-default>
+    <div *ngIf="clientes && clientes.length > 0 && produtoCliente && produtoCliente.length > 0; else elseBlock">
+      <div class="top-bar">
+        <div class="header-container">
+          <po-button id="buttonParametros"
+            p-label="Parametros" (p-click)="abrirSlide()"
+          ></po-button>
+        </div>
+        <po-tabs>
+          <po-tab p-label="Resumo" [p-active]="true">
+            <!-- Dashboard -->
+            <po-widget>
+              <div class="po-row">
+                <!-- Dados do Cliente -->
+                <po-widget
+                    class="po-sm-6"
+                    [p-height]="280"
+                  >
+                    <h3>Cliente</h3>
+                    <div class="po-md-12" *ngIf="clientes && clientes.length > 0">
+                      <p><strong>Codigo:</strong> {{ clientes[0].codigo }}</p>
+                      <p><strong>Nome:</strong> {{ clientes[0].nome }}</p>
+                      <p><strong>Telefone:</strong> {{ clientes[0].telefone }}</p>
+                      <p><strong>Telefone Comercial:</strong> {{ clientes[0].telcomer }}</p>
+                      <p><strong>Celular:</strong> {{ clientes[0].celular }}</p>
+                      <p><strong>E-mail:</strong> {{ clientes[0].email }}</p>
+                      <p *ngFor="let produto of produtoCliente"><strong>Produto {{produto.value + 1}}:</strong> {{ produto.produto }}</p>
+                    </div>
+                </po-widget>
+                <po-widget
+                    class="po-sm-6"
+                    p-primary-label="Histórico Cobrança"
+                    p-secondary-label="Histórico Produto"
+                    (p-primary-action)="abrirModal()"
+                    (p-secondary-action)="abrirModal2()"
+                    [p-height]="250"
+                    *ngIf="produtoCliente && produtoCliente.length > 0"
+                  >
+                    <h3>Selecione o Produto:</h3>
+                    <form >
+                      <po-select
+                        name="ProdHist"
+                        (p-change)="mudaOpcao($event)"
+                        [p-options]="produtoCliente"
+                      >
+                      </po-select>
+                    </form>
+                    <br><br>
+                    <h3>Clique o que deseja ver:</h3>
+                </po-widget>
+                <po-modal
+                    #modalHistorico
+                    p-title="Histórico de Cobrança"
+                  >
+                    <div *ngFor="let historico of historicoCobrancaFiltrado">
+                      <p>{{ historico.texto }}</p>
+                    </div>
+                </po-modal>
+                <po-modal
+                    #modalVidaLote
+                    p-title="Histórico do Produto"
+                  >
+                    <div *ngFor="let vidaLote of historicoVidaLoteFiltrado">
+                      <p>{{ vidaLote.Obs }}</p>
+                    </div>
+                </po-modal>
+              </div><br>
+                <div *ngFor="let fin of financeiro">
+                  <po-widget
+                    class="po-sm-4 po-xl-3"
+                    [p-height]="260"
+                    >
+                    <h3>Total dos titulos:</h3>
+                    <div class="po-sm-12">
+                      <p><strong>Produto:</strong> {{ fin.produto }}</p>
+                      <p><strong>Prop. Atual:</strong> {{ fin.propAtual }}</p>
+                      <p><strong>Lote Quitado:</strong> {{ fin.quitado }}</p>
+                      <p><strong>A Vencer:</strong> {{ fin.valorVencer.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</p>
+                      <p><strong>Vencidas:</strong> {{ fin.ValorVencido.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }} </p>
+                      <p><strong>Vence Hoje:</strong> {{ fin.ValorHoje.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</p>
+                      <p><strong>Juros Pago:</strong> {{ fin.jurosTotal.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</p>
+                      <p><strong>Total liquidada:</strong> {{ fin.ValorLiquidado.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</p>
+                      <p><strong>Total Geral:</strong> {{ fin.ValorTotal.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</p>
+                    </div>
+                  </po-widget>
+                </div>
+            </po-widget>
+          </po-tab>
+          <po-tab p-label="Posição Financeira">
+            <form *ngIf="produtoCliente && produtoCliente.length > 0">
+                <po-select
+                  name="ProdFin"
+                  (p-change)="mudaProd($event)"
+                  [p-options]="produtoCliente"
+                >
+                </po-select>
+            </form>
+            <div  *ngIf="selProd && selProd.length > 0 && selecao > 0" >
+              <div >
+                <po-widget *ngFor="let prod of selProd" class="po-xl-7 po-lg-7 po-sm-7" [p-height]="250" >
+                  <div class="po-xl-3 po-lg-3 po-sm-3">
+                    <h3>Dados:</h3>
+                    <p><strong>Filial:</strong> {{ prod.filial }}</p>
+                    <p><strong>Produto:</strong> {{ prod.produto }}</p>
+                    <p><strong>Prop. Atual:</strong> {{ prod.propAtual }}</p>
+                    <p><strong>Prefixo:</strong> {{ prod.prefixo }}</p>
+                    <p><strong>Numero:</strong> {{ prod.num }}</p>
+                    <p><strong>Indice:</strong> {{ prod.idc }}</p>
+                    <p><strong>Qtd Pcl:</strong> {{ prod.qtd }}</p>
+                  </div>
+                  <div class="po-xl-3 po-lg-3 po-sm-3">
+                    <h3>Total dos titulos:</h3>
+                    <p><strong>A Vencer:</strong> {{ prod.valorVencer.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</p>
+                    <p><strong>Vencidas:</strong> {{ prod.ValorVencido.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }} </p>
+                    <p><strong>Vence Hoje:</strong> {{ prod.ValorHoje.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</p>
+                  </div>
+                  <div class="po-xl-3 po-lg-3 po-sm-3" >
+                    <h3>Total das despesas (ZZZ):</h3>
+                    <p><strong>A Vencer:</strong> {{ prod.ValorDespVencer.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</p>
+                    <p><strong>Vencidas:</strong> {{ prod.ValorDespHoje.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</p>
+                    <p><strong>Vence Hoje:</strong> {{ prod.ValorDespVencida.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }} </p>
+                    <p><strong>liquidadas:</strong> {{ prod.ValorDespLiquidado.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</p>
+                  </div>
+                  <div class="po-xl-3 po-lg-3 po-sm-3">
+                    <h3>Total Geral:</h3>
+                    <p><strong>Juros Pago:</strong> {{ prod.jurosTotal.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</p>
+                    <p><strong>Total liquidada:</strong> {{ prod.ValorLiquidado.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</p>
+                    <p><strong>Total Nominal:</strong> {{ prod.ValorTotal.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</p>
+                    <p><strong>Total Geral:</strong> {{ prod.ValorTotal.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</p>
+                  </div>
+                </po-widget>
+                <po-widget class="po-xl-5 po-lg-5 po-sm-5" [p-height]="250">
+                  <div class="po-xl-6 po-lg-6 po-sm-6">
+                    <h3>Parâmetro AVP:</h3>
+                    <po-datepicker class="po-lg-12" name="datepicker" p-label="Data Base:" [(ngModel)]="DataBase" [p-min-date]="dataAtual" (p-change)="atualizaAVP()" > </po-datepicker>
+                    <po-input class="po-lg-4" p-label="Multa(%):" [(ngModel)]="formMulta" (p-change)="atualizaAVP()" (input)="mascaraMoeda(this.formMulta,$event,'multa')"> </po-input>
+                    <po-input class="po-lg-4" p-label="Juros(%):" [(ngModel)]="formJuros" (p-change)="atualizaAVP()" (input)="mascaraMoeda(this.formJuros,$event,'juros')"> </po-input>
+                    <po-input class="po-lg-4" p-label="Desconto(%):" [(ngModel)]="formDesconto" (p-change)="atualizaAVP()" (input)="mascaraMoeda(this.formDesconto,$event,'desconto')"> </po-input>
+                  </div>
+                  <div class="po-xl-6 po-lg-6 po-sm-6">
+                    <h3>Antecipação:</h3>
+                    <p><strong>Parcelas:</strong>{{ qtdParcelas }}</p>
+                    <p><strong>Total:</strong>{{ valorTotalAVP.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) }}</p>
+                    <br>
+                    <po-input style="margin-top: 3%;" class="po-lg-12" p-label="Oferta Cliente:" [(ngModel)]="formValorOferta" (p-blur)="calculaOferta()" (input)="mascaraMoeda(this.formValorOferta,$event,'oferta')"> </po-input>
+                  </div>
+                </po-widget>
+              </div>
+            </div>
+            <div *ngIf="parcelasTit[0] && parcelasTit.length > 0 && selecao > 0">
+              <div>
+                <po-table
+                  #tablePOUI
+                  p-container="shadow"
+                  class="po-xl-12 po-lg-12 po-sm-12"
+                  [p-height]="tamanhoTabela"
+                  [p-columns]="columns"
+                  [p-items]="this.parcelasTit"
+                  [p-selectable]="true"
+                  [p-sort]="true"
+                  [p-hide-table-search]="false"
+                  [p-draggable]="true"
+                  (p-selected)="calcParcelaAVP($event)"
+                  (p-unselected)="removeParcelaAvp($event)"
+                  (p-all-selected)="calcTodasParcelaAVP($event)"
+                  (p-all-unselected)="removeTodasParcelaAvp($event)"
+                >
+                </po-table>
+              </div>
+            </div>
+          </po-tab>
+          <po-tab p-label="Histórico">
+            <div *ngIf="produtoCliente && produtoCliente.length > 0">
+              <div *ngFor="let opProdCli of produtoCliente">
+                <h3>{{ opProdCli.produto }}:</h3>
+                <po-list-view
+                  p-property-title="name"
+                  [p-items]="historicoProduto[opProdCli.item]"
+                >
+                  <ng-template p-list-view-content-template let-item>
+                    <div class="po-row">
+                      <po-info class="po-md-1" p-label="Documento" [p-value]="item.doc"></po-info>
+                      <po-info class="po-md-2" p-label="Cod. Prod." [p-value]="item.codprod"></po-info>
+                      <po-info class="po-md-6" p-label="Produto" [p-value]="item.produto"></po-info>
+                      <po-info class="po-md-1" p-label="Data" [p-value]="item.data"></po-info>
+                      <po-info class="po-md-1" p-label="Prop. Atual" [p-value]="item.atual"></po-info>
+                      <po-info class="po-md-1" p-label="Quitado" [p-value]="item.quitado"></po-info>
+                    </div>
+                  </ng-template>
+                </po-list-view>
+              </div>
+            </div>
+          </po-tab>
+        </po-tabs>
+      </div>
+    </div>
+  </po-page-default>
+  <ng-template #elseBlock>
+    <div id="painel">
+      <div class="container">
+        <div class="left">
+          <h2><span class="title">Painel</span><br><span class="highlight">FINANCEIRO</span></h2>
+          <p>Um olhar estratégico para o financeiro<br>do cliente de sua empresa</p>
+          <div>
+            <button (click)="abrirSlide()">Acessar</button>
+            <button (click)="chamarMeuPainel()">Meu Painel</button>
+          </div>
+        </div>
+        <div class="right">
+          <img src="{{logo}}" alt="Logo THCM" class="logo" />
+
+        </div>
+      </div>
+   </div>
+  </ng-template>
+</div>

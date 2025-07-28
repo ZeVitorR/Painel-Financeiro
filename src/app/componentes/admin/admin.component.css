@@ -1,0 +1,33 @@
+select{
+  border: 1px solid black;
+  padding-left: 2%;
+  appearance: auto; /* mostra a seta padrão */
+  -webkit-appearance: auto;
+  -moz-appearance: auto;
+}
+
+.dados{
+  display: flex;
+  justify-content: space-between;
+  height: 30%;
+}
+
+.card{
+  width: 50%;
+}
+
+.filtro {
+  font-family: Arial, sans-serif;
+  margin: 10px 0;
+}
+
+
+
+.date-range {
+  height: 34px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0 8px;
+  font-size: 14px;
+  min-width: 140px;
+}
